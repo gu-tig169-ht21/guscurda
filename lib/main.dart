@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
 class MainView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var body;
     return Scaffold(
       appBar: AppBar(
         title: Text("Favorite Musician"),
@@ -40,7 +41,15 @@ class MainView extends StatelessWidget {
                 child: TextField(
                   decoration: InputDecoration(hintText: 'Add musician'),
                 )),
-            _checkboxRow(),
+            ListView(
+              children: [
+                _checkbox('John Bonham'),
+                _checkbox('Alex Turner'),
+                _checkbox('Elton John'),
+                _checkbox('Jimmy Page'),
+              ],
+              shrinkWrap: true,
+            ),
             Container(height: 100),
             _button(),
           ],
@@ -48,67 +57,41 @@ class MainView extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _appbar() {
-    return Container(
-      height: 53,
-      decoration: BoxDecoration(color: Colors.blueGrey),
-      child: Center(
-        child: Text(
-          'Favorite musician',
-          style: TextStyle(color: Colors.white),
-        ),
+Widget _appbar() {
+  return Container(
+    height: 53,
+    decoration: BoxDecoration(color: Colors.blueGrey),
+    child: Center(
+      child: Text(
+        'Favorite musician',
+        style: TextStyle(color: Colors.white),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _checkboxRow() {
-    return Column(
-      children: [
-        Checkbox(
-          value: false,
-          onChanged: (val) {
-            print('Good choise');
-          },
-        ),
-        Text('John Bonham'),
-        Checkbox(
-          value: false,
-          onChanged: (val) {
-            print('Good choise');
-          },
-        ),
-        Text('Alex Turner'),
-        Checkbox(
-          value: false,
-          onChanged: (val) {
-            print('Good choise');
-          },
-        ),
-        Text('Elton John'),
-        Checkbox(
-          value: false,
-          onChanged: (val) {
-            print('Good choise');
-          },
-        ),
-        Text('Jimmy Page'),
-      ],
-    );
-  }
+Widget _checkbox(String s) {
+  return CheckboxListTile(
+      title: Text(s),
+      value: false,
+      onChanged: (value) {
+        print('Good Choise');
+      });
+}
 
-  Widget _button() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        OutlinedButton(
-          onPressed: () {},
-          child: Text("Save"),
-        ),
-        Container(width: 20),
-      ],
-    );
-  }
+Widget _button() {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      OutlinedButton(
+        onPressed: () {},
+        child: Text("Save"),
+      ),
+      Container(width: 20),
+    ],
+  );
 }
 
 class SecondView extends StatelessWidget {
