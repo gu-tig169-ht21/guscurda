@@ -19,6 +19,8 @@ class MainView extends StatelessWidget {
     var body;
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blueGrey,
+        centerTitle: true,
         title: Text("Favorite Musician"),
         actions: [
           IconButton(
