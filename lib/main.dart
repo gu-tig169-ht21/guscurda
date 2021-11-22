@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/rendering.dart';
 import 'SecondView.dart';
-import 'AddToList.dart';
+import 'NewaddMusicianView.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,8 +27,6 @@ class _MainViewState extends State<MainView> {
   TextEditingController textFieldController = TextEditingController();
 
   List<ArtistName> list = <ArtistName>[];
-
-  get title => null;
 
   @override
   void initState() {
@@ -64,18 +62,14 @@ class _MainViewState extends State<MainView> {
             Container(height: 32),
             Container(
               margin: EdgeInsets.only(left: 16, right: 16),
-              child: TextField(
-                controller: textFieldController,
-                onEditingComplete: () => save(),
-                decoration: InputDecoration(hintText: 'Add musician'),
-              ),
             ),
-            AddToList(),
             buildbody(),
             Container(height: 100),
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+          child: (Icon(Icons.add)), onPressed: () => addMusicianView()),
     );
   }
 
@@ -93,26 +87,12 @@ class _MainViewState extends State<MainView> {
     list.add(item);
   }
 
-//kolla om det finns något värde i Textfeild, och i så fall spara
-  void save() {
-    if (textFieldController.text.isNotEmpty)
-      Navigator.of(context).pop(textFieldController);
-    addArtist(ArtistName(title: title));
-  }
-
-  Widget AddToList() {
-    return Column(
-      children: [
-        TextButton.icon(
-          onPressed: () => save(),
-          icon: Icon(Icons.add),
-          label: Text(
-            'Add',
-            style: TextStyle(fontSize: 16),
-          ),
-        ),
-      ],
-    );
+  void addMusicianView() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return NewaddMusicianView();
+    })).then((title) {
+      addArtist(ArtistName(title: title));
+    });
   }
 
   Widget buildbody() {
