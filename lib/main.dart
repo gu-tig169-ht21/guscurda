@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter/rendering.dart';
+import 'SecondView.dart';
+import 'NewaddMusicianView.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -8,17 +12,37 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: MainView(),
     );
   }
 }
 
-class MainView extends StatelessWidget {
+class MainView extends StatefulWidget {
+  @override
+  State<MainView> createState() => _MainViewState();
+}
+
+class _MainViewState extends State<MainView> {
+  TextEditingController textFieldController = TextEditingController();
+
+  List<ArtistName> list = <ArtistName>[];
+
+  @override
+  void initState() {
+    list.add(ArtistName(title: 'John Bonham'));
+    list.add(ArtistName(title: 'Alex Turner'));
+    list.add(ArtistName(title: 'Elton John'));
+    list.add(ArtistName(title: 'Jimmy Page'));
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    var body;
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blueGrey,
+        centerTitle: true,
         title: Text("Favorite Musician"),
         actions: [
           IconButton(
@@ -30,74 +54,81 @@ class MainView extends StatelessWidget {
           )
         ],
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(height: 32),
             Container(
-                margin: EdgeInsets.only(left: 16, right: 16),
-                child: TextField(
-                  decoration: InputDecoration(hintText: 'Add musician'),
-                )),
-            ListView(
-              children: [
-                _checkbox('John Bonham'),
-                _checkbox('Alex Turner'),
-                _checkbox('Elton John'),
-                _checkbox('Jimmy Page'),
-              ],
-              shrinkWrap: true,
+              margin: EdgeInsets.only(left: 16, right: 16),
             ),
+            buildbody(),
             Container(height: 100),
-            _button(),
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+          child: (Icon(Icons.add)), onPressed: () => addMusicianView()),
+    );
+  }
+
+  void setComplete(ArtistName check) {
+    setState(() {
+      check.complete = !check.complete;
+    });
+  }
+
+  void removeItem(ArtistName item) {
+    list.remove(item);
+  }
+
+  void addArtist(ArtistName item) {
+    list.add(item);
+  }
+
+  void addMusicianView() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return NewaddMusicianView();
+    })).then((title) {
+      addArtist(ArtistName(title: title));
+    });
+  }
+
+  Widget buildbody() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: list.length,
+      itemBuilder: (context, index) {
+        return buildItem(list[index]);
+      },
+    );
+  }
+
+//sätter värdet till Complete onTap & tar bort item från lista i en swipe funktion
+  Widget buildItem(ArtistName item) {
+    return Dismissible(
+      key: Key(item.hashCode.toString()),
+      onDismissed: (direction) => removeItem(item),
+      direction: DismissDirection.startToEnd,
+      background: Container(
+        color: Colors.red[600],
+      ),
+      child: ListTile(
+        title: Text(item.title),
+        trailing: Checkbox(value: item.complete, onChanged: null),
+        onTap: () => setComplete(item),
+      ),
     );
   }
 }
 
-Widget _appbar() {
-  return Container(
-    height: 53,
-    decoration: BoxDecoration(color: Colors.blueGrey),
-    child: Center(
-      child: Text(
-        'Favorite musician',
-        style: TextStyle(color: Colors.white),
-      ),
-    ),
-  );
-}
+class ArtistName {
+  String title;
+  bool complete;
 
-Widget _checkbox(String s) {
-  return CheckboxListTile(
-      title: Text(s),
-      value: false,
-      onChanged: (value) {
-        print('Good Choise');
-      });
-}
-
-Widget _button() {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      OutlinedButton(
-        onPressed: () {},
-        child: Text("Save"),
-      ),
-      Container(width: 20),
-    ],
-  );
-}
-
-class SecondView extends StatelessWidget {
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-    );
-  }
+  ArtistName({
+    required this.title,
+    this.complete = false,
+  });
 }
