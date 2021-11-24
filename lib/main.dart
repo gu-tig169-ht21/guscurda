@@ -67,6 +67,17 @@ class _MainViewState extends State<MainView> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            TextButton(
+              child: Text('Live Shows'),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 160),
+                primary: Colors.blueGrey,
+              ),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => SecondView()));
+              },
+            ),
             Container(height: 32),
             Container(
               margin: EdgeInsets.only(left: 16, right: 16),
@@ -77,7 +88,9 @@ class _MainViewState extends State<MainView> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          child: (Icon(Icons.add)), onPressed: () => addMusicianView()),
+          child: (Icon(Icons.add)),
+          backgroundColor: Colors.blueGrey,
+          onPressed: () => addMusicianView()),
     );
   }
 
