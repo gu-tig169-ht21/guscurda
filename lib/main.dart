@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
 import 'SecondView.dart';
 import 'NewaddMusicianView.dart';
 
@@ -28,6 +29,8 @@ class _MainViewState extends State<MainView> {
 
   List<ArtistName> list = <ArtistName>[];
 
+  String activeFilter = 'All';
+
   @override
   void initState() {
     list.add(ArtistName(title: 'John Bonham'));
@@ -45,13 +48,18 @@ class _MainViewState extends State<MainView> {
         centerTitle: true,
         title: Text("Favorite Musician"),
         actions: [
-          IconButton(
-            icon: Icon(Icons.arrow_right),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SecondView()));
+          PopupMenuButton(
+            itemBuilder: (context) => [
+              const PopupMenuItem(child: Text('All'), value: 'All'),
+              const PopupMenuItem(child: Text('Marked'), value: 'Marked'),
+              const PopupMenuItem(child: Text('Unmarked'), value: 'Unmarked')
+            ],
+            onSelected: (String value) {
+              setState(() {
+                activeFilter = value;
+              });
             },
-          )
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -63,7 +71,7 @@ class _MainViewState extends State<MainView> {
             Container(
               margin: EdgeInsets.only(left: 16, right: 16),
             ),
-            buildbody(),
+            buildbody(filter(list)),
             Container(height: 100),
           ],
         ),
@@ -71,6 +79,21 @@ class _MainViewState extends State<MainView> {
       floatingActionButton: FloatingActionButton(
           child: (Icon(Icons.add)), onPressed: () => addMusicianView()),
     );
+  }
+
+  List<ArtistName> filter(List<ArtistName> listToFilter) {
+    if (activeFilter == 'Marked') {
+      return listToFilter
+          .where((ArtistName item) => item.complete == true)
+          .toList();
+    }
+    if (activeFilter == 'Unarked') {
+      return listToFilter
+          .where((ArtistName item) => item.complete == false)
+          .toList();
+    }
+
+    return listToFilter;
   }
 
   void setComplete(ArtistName check) {
@@ -95,12 +118,12 @@ class _MainViewState extends State<MainView> {
     });
   }
 
-  Widget buildbody() {
+  Widget buildbody(List<ArtistName> filteredList) {
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: list.length,
+      itemCount: filteredList.length,
       itemBuilder: (context, index) {
-        return buildItem(list[index]);
+        return buildItem(filteredList[index]);
       },
     );
   }
