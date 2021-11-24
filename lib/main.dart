@@ -100,7 +100,7 @@ class _MainViewState extends State<MainView> {
           .where((ArtistName item) => item.complete == true)
           .toList();
     }
-    if (activeFilter == 'Unarked') {
+    if (activeFilter == 'Unmarked') {
       return listToFilter
           .where((ArtistName item) => item.complete == false)
           .toList();
