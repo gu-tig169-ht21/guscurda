@@ -67,3 +67,12 @@ class CounterIndex extends StatelessWidget {
     });
   }
 }
+
+
+//  IconButton(
+//             icon: Icon(Icons.arrow_right),
+//             onPressed: () {
+//               Navigator.push(context,
+//                   MaterialPageRoute(builder: (context) => SecondView()));
+//             },
+//           )

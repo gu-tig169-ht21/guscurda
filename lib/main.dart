@@ -4,6 +4,9 @@ import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'SecondView.dart';
 import 'NewaddMusicianView.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'Api.dart';
 
 void main() {
   runApp(MyApp());
@@ -167,4 +170,18 @@ class ArtistName {
     required this.title,
     this.complete = false,
   });
+
+  static Map<String, dynamic> toJson(ArtistName item) {
+    return {
+      'title': item.title,
+      'done': item.complete,
+    };
+  }
+
+  static ArtistName? fromJson(Map<String, dynamic> json) {
+    ArtistName(
+      title: json['title'],
+      complete: json['done'],
+    );
+  }
 }
