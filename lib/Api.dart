@@ -1,47 +1,55 @@
-import 'package:flutter/material.dart';
-
-import 'main.dart';
-
+import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'addArtist.dart';
 import 'dart:convert';
 
 String url = 'https://todoapp-api-pyq5q.ondigitalocean.app';
-String apiKey = '70d5b860-4cc9-4412-8943-74e5479e7f37';
+String apiKey = '8d89bbbd-62e5-44c3-97ea-b81ab773da13';
 
 class Api {
-  static Future<List<ArtistName>> getArtist() async {
-    var response = await http.get(
-      Uri.parse('$url/todos?key=$apiKey'),
-    );
-    String bodyString = response.body;
-    var json = jsonDecode(bodyString);
-    return json.map((data) => ArtistName.fromJson(data)).toList();
+  static Future<List<ArtistName>> getItems() async {
+    var response = await http.get(Uri.parse('$url/todos?key=$apiKey'));
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return data.isEmpty
+          ? <ArtistName>[]
+          : data.map<ArtistName>((obj) => ArtistName.fromJson(obj)).toList();
+    }
+
+    return [];
   }
 
-  static Future<List<ArtistName>> addArtist(ArtistName item) async {
-    Map<String, dynamic> json = ArtistName.toJson(item);
-    var bodyString = jsonEncode(json);
-    var response = await http.post(
-      Uri.parse('$url/todos?key=$apiKey'),
-      body: bodyString,
-      headers: {'Content-Type': 'application/json'},
-    );
-    bodyString = response.body;
-    var list = jsonDecode(bodyString);
-    return list.map<ArtistName>((data) {
-      return ArtistName.fromJson(data);
-    }).toList();
+  static Future<void> addArtistName(ArtistName artistName) async {
+    artistName.status = false;
+    await http.post(Uri.parse('$url/todos?key=$apiKey'),
+        body: jsonEncode(artistName.toJson()),
+        headers: {'Content-Type': 'application/json'});
   }
 
-  static Future deleteItem(String item) async {
-    var response = await http.delete(
-      Uri.parse('$url/todos?key=$apiKey'),
-    );
-    var bodyString = response.body;
-    var list = jsonDecode(bodyString);
+  static Future updateShoppingItem(ArtistName todo) async {
+    var response = await http.put(
+        Uri.parse('$url/todos/${todo.id}?key=$apiKey'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        body: jsonEncode(todo.toJson()));
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      log('error on update ${response.body}');
+      return null;
+    }
+  }
 
-    return list.map<ArtistName>((data) {
-      return ArtistName.fromJson(data);
-    }).toList();
+  static Future removeTodoModel(String todoId) async {
+    try {
+      var response =
+          await http.delete(Uri.parse('$url/todos/$todoId?key=$apiKey'));
+      if (response.statusCode == 200) {
+        return response;
+      }
+    } catch (exception) {
+      log('exception on remove');
+    }
   }
 }

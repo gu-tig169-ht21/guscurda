@@ -1,187 +1,160 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
-
-import 'package:flutter/rendering.dart';
-import 'package:provider/provider.dart';
-import 'SecondView.dart';
-import 'NewaddMusicianView.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'Api.dart';
+import 'artistNotifier.dart';
+import 'popUp.dart';
+import 'package:provider/provider.dart';
+import 'ArtistManager.dart';
+import 'addArtist.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainView(),
+      title: 'Favorite Artist',
+      theme: ThemeData(
+        primarySwatch: Colors.blueGrey,
+      ),
+      home: ChangeNotifierProvider<ArtistNotifier>(
+        create: (context) => ArtistNotifier(),
+        child: const MyHomePage(title: 'Favorite Artist'),
+      ),
     );
   }
 }
 
-class MainView extends StatefulWidget {
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
+
   @override
-  State<MainView> createState() => _MainViewState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MainViewState extends State<MainView> {
-  TextEditingController textFieldController = TextEditingController();
+class _MyHomePageState extends State<MyHomePage> {
+  ListManager myListManager = ListManager();
 
-  List<ArtistName> list = <ArtistName>[];
-
+  List<ListManager> list = <ListManager>[];
   String activeFilter = 'All';
 
   @override
   void initState() {
-    list.add(ArtistName(title: 'John Bonham'));
-    list.add(ArtistName(title: 'Alex Turner'));
-    list.add(ArtistName(title: 'Elton John'));
-    list.add(ArtistName(title: 'Jimmy Page'));
+    var provider = context.read<ArtistNotifier>();
+    provider.getArtistName();
+    provider.filterText.addListener(() {
+      setState(() {
+        activeFilter = provider.filterText.value;
+      });
+    });
+
     super.initState();
+  }
+
+  void _addName(ArtistName item) async {
+    context.read<ArtistNotifier>().addArtistName(item);
+  }
+
+  void _checkStatus(ArtistName artistName) async {
+    await context.read<ArtistNotifier>().setDoneArtistName(artistName);
+  }
+
+  void _removeName(ArtistName item) {
+    context.read<ArtistNotifier>().removeArtistName(item);
+  }
+
+  Icon _getCheckboxIcon(bool state) {
+    return state
+        ? Icon(
+            Icons.check_box_outlined,
+            size: 20.0,
+            color: Colors.blueGrey,
+          )
+        : Icon(
+            Icons.check_box_outline_blank,
+            size: 20.0,
+            color: Colors.blueGrey,
+          );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blueGrey,
-        centerTitle: true,
-        title: Text("Favorite Musician"),
-        actions: [
-          PopupMenuButton(
-            itemBuilder: (context) => [
-              const PopupMenuItem(child: Text('All'), value: 'All'),
-              const PopupMenuItem(child: Text('Marked'), value: 'Marked'),
-              const PopupMenuItem(child: Text('Unmarked'), value: 'Unmarked')
-            ],
-            onSelected: (String value) {
-              setState(() {
-                activeFilter = value;
-              });
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextButton(
-              child: Text('Live Shows'),
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 160),
-                primary: Colors.blueGrey,
-              ),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SecondView()));
-              },
-            ),
-            Container(height: 32),
-            Container(
-              margin: EdgeInsets.only(left: 16, right: 16),
-            ),
-            buildbody(filter(list)),
-            Container(height: 100),
+        appBar: AppBar(
+          title: Text(widget.title),
+          centerTitle: true,
+          actions: [
+            PopupMenuButton(
+                itemBuilder: (context) => [
+                      const PopupMenuItem(child: Text('All'), value: 'All'),
+                      const PopupMenuItem(
+                          child: Text('Marked'), value: 'Marked'),
+                      const PopupMenuItem(
+                          child: Text('Unmarked'), value: 'Unmarked')
+                    ],
+                onSelected: (String value) {
+                  setState(() {
+                    context.read<ArtistNotifier>().filterArtistList(value);
+                  });
+                }),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-          child: (Icon(Icons.add)),
-          backgroundColor: Colors.blueGrey,
-          onPressed: () => addMusicianView()),
+        body: _buildbody(),
+        floatingActionButton: PopupForm(callback: _addName));
+  }
+
+  Widget _buildbody() {
+    return Consumer<ArtistNotifier>(
+      builder: (context, value, child) => value.fatching
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: value.list.length,
+              itemBuilder: (context, index) {
+                var item = value.list[index];
+                return Card(
+                  key: UniqueKey(),
+                  child: ListTile(
+                    title: Text(
+                      item.title,
+                      style: item.status
+                          ? const TextStyle(decoration: TextDecoration.none)
+                          : const TextStyle(decoration: TextDecoration.none),
+                    ),
+                    trailing:
+                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      IconButton(
+                        icon: _getCheckboxIcon(item.status),
+                        onPressed: () {
+                          _checkStatus(item);
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.delete_outline,
+                          size: 20.0,
+                          color: Colors.blueGrey,
+                        ),
+                        onPressed: () {
+                          _removeName(item);
+                        },
+                      ),
+                    ]),
+                  ),
+                );
+              }),
     );
   }
 
-  List<ArtistName> filter(List<ArtistName> listToFilter) {
-    if (activeFilter == 'Marked') {
-      return listToFilter
-          .where((ArtistName item) => item.complete == true)
-          .toList();
-    }
-    if (activeFilter == 'Unmarked') {
-      return listToFilter
-          .where((ArtistName item) => item.complete == false)
-          .toList();
-    }
-
-    return listToFilter;
-  }
-
-  void setComplete(ArtistName check) {
+  void changeState(ArtistName check) {
     setState(() {
-      check.complete = !check.complete;
+      check.status = !check.status;
     });
-  }
-
-  void removeItem(ArtistName item) {
-    list.remove(item);
-  }
-
-  void addArtist(ArtistName item) {
-    list.add(item);
-  }
-
-  void addMusicianView() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return NewaddMusicianView();
-    })).then((title) {
-      addArtist(ArtistName(title: title));
-    });
-  }
-
-  Widget buildbody(List<ArtistName> filteredList) {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: filteredList.length,
-      itemBuilder: (context, index) {
-        return buildItem(filteredList[index]);
-      },
-    );
-  }
-
-//sätter värdet till Complete onTap & tar bort item från lista i en swipe funktion
-  Widget buildItem(ArtistName item) {
-    return Dismissible(
-      key: Key(item.hashCode.toString()),
-      onDismissed: (direction) => removeItem(item),
-      direction: DismissDirection.startToEnd,
-      background: Container(
-        color: Colors.red[600],
-      ),
-      child: ListTile(
-        title: Text(item.title),
-        trailing: Checkbox(value: item.complete, onChanged: null),
-        onTap: () => setComplete(item),
-      ),
-    );
-  }
-}
-
-class ArtistName {
-  String title;
-  bool complete;
-
-  ArtistName({
-    required this.title,
-    this.complete = false,
-  });
-
-  static Map<String, dynamic> toJson(ArtistName item) {
-    return {
-      'title': item.title,
-      'done': item.complete,
-    };
-  }
-
-  static ArtistName? fromJson(Map<String, dynamic> json) {
-    ArtistName(
-      title: json['title'],
-      complete: json['done'],
-    );
   }
 }
