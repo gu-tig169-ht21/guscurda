@@ -10,6 +10,8 @@ class MyState extends ChangeNotifier {
   }
 
   int get counter => _counter;
+
+  void filter(String value) {}
 }
 
 class SecondView extends StatefulWidget {
@@ -43,6 +45,7 @@ class SecondViewState extends State<StatefulWidget> {
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
+          backgroundColor: Colors.blueGrey,
           onPressed: () {
             Provider.of<MyState>(context, listen: false).increment();
           },
@@ -64,3 +67,12 @@ class CounterIndex extends StatelessWidget {
     });
   }
 }
+
+
+//  IconButton(
+//             icon: Icon(Icons.arrow_right),
+//             onPressed: () {
+//               Navigator.push(context,
+//                   MaterialPageRoute(builder: (context) => SecondView()));
+//             },
+//           )
