@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 import 'Api.dart';
-import 'addArtist.dart';
+import 'ArtistManager.dart';
 
 class ArtistNotifier extends ChangeNotifier {
   List<ArtistName> _cachedList = [];
@@ -18,19 +18,19 @@ class ArtistNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addArtistName(ArtistName todo) async {
-    await Api.addArtistName(todo);
+  void addArtistName(ArtistName index) async {
+    await Api.addArtistName(index);
     await getArtistName();
   }
 
-  Future<void> setDoneArtistName(ArtistName todo) async {
-    todo.status = !todo.status;
-    await Api.updateShoppingItem(todo);
+  Future<void> setDoneArtistName(ArtistName index) async {
+    index.status = !index.status;
+    await Api.updateArtistList(index);
     await getArtistName();
   }
 
-  void removeArtistName(ArtistName todo) async {
-    await Api.removeTodoModel(todo.id);
+  void removeArtistName(ArtistName index) async {
+    await Api.removeItem(index.id);
     await getArtistName();
   }
 
