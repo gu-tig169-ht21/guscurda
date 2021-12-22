@@ -1,25 +1,30 @@
-import 'addArtist.dart';
+import 'dart:developer';
+import 'package:flutter/material.dart';
 
-class ListManager {
-  List<ArtistName> artistName = [];
+class ArtistName {
+  late String id;
+  late String title;
+  late bool status;
 
-  void addArtistName(ArtistName item) {
-    artistName.add(item);
+  ArtistName({required this.title, this.status = false, this.id = ''}) {
+    id = UniqueKey().toString();
   }
 
-  void removeArtistName({required String id}) {
-    artistName.removeWhere((element) => element.id == id);
+  @override
+  String toString() {
+    return 'id==>$id|title==>$title|status==>$status';
   }
 
-  void markAsComplete({required String id}) {
-    artistName.firstWhere((element) => element.id == id).status = true;
+  ArtistName.fromJson(Map<String, dynamic> json) {
+    id = json["id"];
+    title = json["title"];
+    status = json["done"] ?? false;
   }
 
-  void markAsIncomplete({required String id}) {
-    artistName.firstWhere((element) => element.id == id).status = false;
-  }
-
-  void markStatus({required int index}) {
-    artistName[index].status = !artistName[index].status;
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = {};
+    map['title'] = title;
+    map['done'] = status;
+    return map;
   }
 }

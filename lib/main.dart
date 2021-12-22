@@ -1,11 +1,10 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'Api.dart';
+import 'api.dart';
 import 'artistNotifier.dart';
-import 'popUp.dart';
+import 'newArtistView.dart';
 import 'package:provider/provider.dart';
 import 'ArtistManager.dart';
-import 'addArtist.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,9 +39,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  ListManager myListManager = ListManager();
-
-  List<ListManager> list = <ListManager>[];
   String activeFilter = 'All';
 
   @override
@@ -107,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         body: _buildbody(),
-        floatingActionButton: PopupForm(callback: _addName));
+        floatingActionButton: NewArtistView(callback: _addName));
   }
 
   Widget _buildbody() {
@@ -150,11 +146,5 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               }),
     );
-  }
-
-  void changeState(ArtistName check) {
-    setState(() {
-      check.status = !check.status;
-    });
   }
 }

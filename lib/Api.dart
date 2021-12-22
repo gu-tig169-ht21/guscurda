@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'package:http/http.dart' as http;
-import 'addArtist.dart';
+import 'ArtistManager.dart';
 import 'dart:convert';
 
 String url = 'https://todoapp-api-pyq5q.ondigitalocean.app';
@@ -26,13 +26,13 @@ class Api {
         headers: {'Content-Type': 'application/json'});
   }
 
-  static Future updateShoppingItem(ArtistName todo) async {
+  static Future updateArtistList(ArtistName index) async {
     var response = await http.put(
-        Uri.parse('$url/todos/${todo.id}?key=$apiKey'),
+        Uri.parse('$url/todos/${index.id}?key=$apiKey'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8'
         },
-        body: jsonEncode(todo.toJson()));
+        body: jsonEncode(index.toJson()));
     if (response.statusCode == 200) {
       return response;
     } else {
@@ -41,10 +41,10 @@ class Api {
     }
   }
 
-  static Future removeTodoModel(String todoId) async {
+  static Future removeItem(String indexId) async {
     try {
       var response =
-          await http.delete(Uri.parse('$url/todos/$todoId?key=$apiKey'));
+          await http.delete(Uri.parse('$url/todos/$indexId?key=$apiKey'));
       if (response.statusCode == 200) {
         return response;
       }
